@@ -206,6 +206,77 @@ input[type="number"] { width: 110px; }
 
 .empty-tip { text-align: center; color: var(--text-light); padding: 40px 0; font-size: 14px; }
 
+/* ---------- 统计看板 ---------- */
+.stats-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  min-width: 90px;
+  box-shadow: 0 2px 8px rgba(43,50,69,.05);
+  text-align: center;
+}
+.stat-num { font-size: 24px; font-weight: 700; color: var(--primary); }
+.stat-label { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+.week-chart {
+  flex: 1;
+  min-width: 200px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(43,50,69,.05);
+}
+.week-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.week-bar {
+  width: 100%;
+  max-width: 26px;
+  min-height: 2px;
+  background: linear-gradient(180deg, #4f6ef7, #7a5cf0);
+  border-radius: 3px 3px 0 0;
+  transition: height .3s ease;
+}
+.week-bar.zero { background: #e3e7ef; }
+.week-day { font-size: 10px; color: var(--text-light); }
+.week-count { font-size: 10px; color: var(--primary); font-weight: 600; }
+
+/* ---------- 开关 ---------- */
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 6px;
+  font-size: 14px;
+}
+.switch { position: relative; display: inline-block; width: 42px; height: 24px; flex-shrink: 0; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch span {
+  position: absolute; inset: 0;
+  background: #c3cadb;
+  border-radius: 999px;
+  transition: background .2s;
+  cursor: pointer;
+}
+.switch span::before {
+  content: "";
+  position: absolute;
+  width: 18px; height: 18px;
+  left: 3px; top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform .2s;
+}
+.switch input:checked + span { background: var(--primary); }
+.switch input:checked + span::before { transform: translateX(18px); }
+
 /* ---------- 弹窗 ---------- */
 .modal {
   position: fixed;
@@ -228,9 +299,17 @@ input[type="number"] { width: 110px; }
   overflow-y: auto;
   box-shadow: 0 12px 40px rgba(20,24,40,.25);
 }
+.modal-box.wide { max-width: 720px; }
 .modal-box h3 { margin-bottom: 14px; }
+.modal-box h4 {
+  margin: 18px 0 6px;
+  font-size: 14px;
+  color: var(--primary);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
 .modal-box label { display: block; font-size: 13px; color: var(--text-light); margin: 10px 0 4px; }
-.modal-box input[type="text"] { width: 100%; }
+.modal-box input[type="text"], .modal-box input[type="password"], .modal-box input[type="number"] { width: 100%; }
 .modal-desc { font-size: 13px; color: var(--text-light); line-height: 1.7; }
 .modal-desc a { color: var(--primary); }
 .modal-actions {
@@ -243,7 +322,19 @@ input[type="number"] { width: 110px; }
 .settings-msg.ok { color: #1e9e63; }
 .settings-msg.err { color: var(--high); }
 
-/* ---------- toast ---------- */
+/* ---------- 字段 ---------- */
+.field-grow { flex: 1; min-width: 150px; }
+code {
+  background: #eef1f8;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+@media (max-width: 640px) {
+  .form-row { flex-direction: column; align-items: stretch; }
+  input[type="datetime-local"], input[type="number"] { width: 100%; }
+}
 .toast {
   position: fixed;
   bottom: 28px;

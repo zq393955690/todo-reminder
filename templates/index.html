@@ -11,13 +11,24 @@
     <div class="header-inner">
       <h1>📋 待办事项提醒</h1>
       <div class="header-right">
-        <span id="push-status" class="push-status not-configured">微信通知未配置</span>
+        <span id="push-status" class="push-status not-configured">通知未配置</span>
+        <button id="btn-desktop-notify" class="btn btn-ghost" title="开启浏览器桌面通知">🔔 桌面通知</button>
+        <a href="/api/export?format=json" class="btn btn-ghost" title="导出备份">💾 导出</a>
         <button id="btn-settings" class="btn btn-ghost">⚙️ 设置</button>
       </div>
     </div>
   </header>
 
   <main>
+    <!-- 统计看板 -->
+    <section class="stats-bar" id="stats-bar">
+      <div class="stat-card"><div class="stat-num" id="st-today">0</div><div class="stat-label">今日完成</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-active">0</div><div class="stat-label">待办中</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-done">0</div><div class="stat-label">累计完成</div></div>
+      <div class="stat-card"><div class="stat-num" id="st-total">0</div><div class="stat-label">全部</div></div>
+      <div class="week-chart" id="week-chart" title="近7天完成趋势"></div>
+    </section>
+
     <!-- 添加待办 -->
     <section class="card add-card">
       <form id="add-form" autocomplete="off">
@@ -38,9 +49,9 @@
               <option value="2">高</option>
             </select>
           </div>
-          <div class="field">
-            <label>提前提醒（分钟）</label>
-            <input type="number" id="f-remind" min="0" value="0">
+          <div class="field field-grow">
+            <label>提前提醒（分钟，多个用逗号分隔，如 <code>1440,60,10</code>；留空=到点提醒）</label>
+            <input type="text" id="f-remind" placeholder="例如 1440,60,10" value="">
           </div>
           <div class="field">
             <label>重复</label>
@@ -79,7 +90,7 @@
         <label>备注</label>
         <input type="text" id="e-note" maxlength="500">
         <div class="form-row">
-          <div class="field">
+          <div class="field field-grow">
             <label>截止时间</label>
             <input type="datetime-local" id="e-due">
           </div>
@@ -91,9 +102,9 @@
               <option value="2">高</option>
             </select>
           </div>
-          <div class="field">
-            <label>提前提醒（分钟）</label>
-            <input type="number" id="e-remind" min="0" value="0">
+          <div class="field field-grow">
+            <label>提前提醒（分钟，逗号分隔多级）</label>
+            <input type="text" id="e-remind" placeholder="例如 1440,60,10">
           </div>
           <div class="field">
             <label>重复</label>
@@ -115,18 +126,75 @@
 
   <!-- 设置弹窗 -->
   <div id="settings-modal" class="modal" hidden>
-    <div class="modal-box">
-      <h3>⚙️ 微信通知设置</h3>
-      <p class="modal-desc">
-        使用 <a href="https://www.pushplus.plus" target="_blank" rel="noopener">PushPlus 推送加</a> 免费推送：
-        打开 pushplus.plus → 微信扫码登录 → 复制「token」填到下面。
-      </p>
-      <label>PushPlus Token</label>
-      <input type="text" id="s-token" placeholder="粘贴你的 token" style="font-family:monospace">
+    <div class="modal-box wide">
+      <h3>⚙️ 通知与系统设置</h3>
+
+      <h4>📱 微信通知（PushPlus，免费）</h4>
+      <div class="switch-row">
+        <label class="switch">
+          <input type="checkbox" id="s-notify-wechat">
+          <span></span>
+        </label>
+        <span>启用微信提醒</span>
+      </div>
+      <input type="text" id="s-token" placeholder="粘贴 PushPlus token" style="font-family:monospace">
+      <p class="modal-desc">打开 <a href="https://www.pushplus.plus" target="_blank" rel="noopener">pushplus.plus</a> → 微信扫码登录 → 复制 token</p>
+      <button type="button" class="btn btn-ghost" id="btn-test-notify">📱 发送测试微信</button>
+
+      <h4>📧 邮箱提醒（SMTP）</h4>
+      <div class="switch-row">
+        <label class="switch">
+          <input type="checkbox" id="s-notify-email">
+          <span></span>
+        </label>
+        <span>启用邮箱提醒</span>
+      </div>
+      <div class="form-row">
+        <div class="field field-grow">
+          <label>SMTP 服务器</label>
+          <input type="text" id="s-host" placeholder="smtp.qq.com">
+        </div>
+        <div class="field">
+          <label>端口</label>
+          <input type="number" id="s-port" value="465" style="width:90px">
+        </div>
+        <div class="field">
+          <label>SSL</label>
+          <select id="s-ssl" style="width:90px">
+            <option value="1">SSL 465</option>
+            <option value="0">STARTTLS 587</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field field-grow">
+          <label>发件邮箱（账号）</label>
+          <input type="text" id="s-user" placeholder="xxx@qq.com">
+        </div>
+        <div class="field field-grow">
+          <label>授权码（不是登录密码）</label>
+          <input type="password" id="s-pass" placeholder="SMTP 授权码" style="font-family:monospace">
+        </div>
+        <div class="field field-grow">
+          <label>收件邮箱</label>
+          <input type="text" id="s-to" placeholder="收到提醒的邮箱">
+        </div>
+      </div>
+      <p class="modal-desc">QQ/163 邮箱需先在网页版开启 SMTP 服务并生成<b>授权码</b>（设置 → 账户 → 开启 SMTP）。</p>
+      <button type="button" class="btn btn-ghost" id="btn-test-email">📧 发送测试邮件</button>
+
+      <h4>🖥️ 开机自启</h4>
+      <div class="switch-row">
+        <label class="switch">
+          <input type="checkbox" id="s-autostart">
+          <span></span>
+        </label>
+        <span id="s-autostart-label">开机自动运行提醒服务（否则需手动双击 start.bat）</span>
+      </div>
+
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" id="btn-cancel-settings">关闭</button>
-        <button type="button" class="btn btn-ghost" id="btn-test-notify">📱 发送测试</button>
-        <button type="button" class="btn btn-primary" id="btn-save-settings">保存</button>
+        <button type="button" class="btn btn-primary" id="btn-save-settings">保存全部</button>
       </div>
       <p id="settings-msg" class="settings-msg"></p>
     </div>
