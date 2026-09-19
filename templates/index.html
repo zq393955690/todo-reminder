@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>待办事项提醒</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>📋 待办事项提醒</h1>
+      <div class="header-right">
+        <span id="push-status" class="push-status not-configured">微信通知未配置</span>
+        <button id="btn-settings" class="btn btn-ghost">⚙️ 设置</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 添加待办 -->
+    <section class="card add-card">
+      <form id="add-form" autocomplete="off">
+        <div class="form-row">
+          <input type="text" id="f-title" placeholder="要做什么？（必填）" maxlength="100" required>
+          <input type="text" id="f-note" placeholder="备注（可选）" maxlength="500">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>截止时间</label>
+            <input type="datetime-local" id="f-due">
+          </div>
+          <div class="field">
+            <label>优先级</label>
+            <select id="f-priority">
+              <option value="0">低</option>
+              <option value="1" selected>中</option>
+              <option value="2">高</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>提前提醒（分钟）</label>
+            <input type="number" id="f-remind" min="0" value="0">
+          </div>
+          <div class="field">
+            <label>重复</label>
+            <select id="f-repeat">
+              <option value="none" selected>不重复</option>
+              <option value="daily">每天</option>
+              <option value="weekly">每周</option>
+              <option value="monthly">每月</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">＋ 添加</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 筛选 -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">全部</button>
+      <button class="filter-btn" data-filter="active">待办</button>
+      <button class="filter-btn" data-filter="done">已完成</button>
+      <span class="filter-hint" id="count-hint"></span>
+    </div>
+
+    <!-- 待办列表 -->
+    <section id="todo-list" class="todo-list"></section>
+    <p id="empty-tip" class="empty-tip" hidden>🎉 暂无待办，添加一条试试吧</p>
+  </main>
+
+  <!-- 编辑弹窗 -->
+  <div id="edit-modal" class="modal" hidden>
+    <div class="modal-box">
+      <h3>编辑待办</h3>
+      <form id="edit-form">
+        <label>标题</label>
+        <input type="text" id="e-title" required maxlength="100">
+        <label>备注</label>
+        <input type="text" id="e-note" maxlength="500">
+        <div class="form-row">
+          <div class="field">
+            <label>截止时间</label>
+            <input type="datetime-local" id="e-due">
+          </div>
+          <div class="field">
+            <label>优先级</label>
+            <select id="e-priority">
+              <option value="0">低</option>
+              <option value="1">中</option>
+              <option value="2">高</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>提前提醒（分钟）</label>
+            <input type="number" id="e-remind" min="0" value="0">
+          </div>
+          <div class="field">
+            <label>重复</label>
+            <select id="e-repeat">
+              <option value="none">不重复</option>
+              <option value="daily">每天</option>
+              <option value="weekly">每周</option>
+              <option value="monthly">每月</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-edit">取消</button>
+          <button type="submit" class="btn btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 设置弹窗 -->
+  <div id="settings-modal" class="modal" hidden>
+    <div class="modal-box">
+      <h3>⚙️ 微信通知设置</h3>
+      <p class="modal-desc">
+        使用 <a href="https://www.pushplus.plus" target="_blank" rel="noopener">PushPlus 推送加</a> 免费推送：
+        打开 pushplus.plus → 微信扫码登录 → 复制「token」填到下面。
+      </p>
+      <label>PushPlus Token</label>
+      <input type="text" id="s-token" placeholder="粘贴你的 token" style="font-family:monospace">
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" id="btn-cancel-settings">关闭</button>
+        <button type="button" class="btn btn-ghost" id="btn-test-notify">📱 发送测试</button>
+        <button type="button" class="btn btn-primary" id="btn-save-settings">保存</button>
+      </div>
+      <p id="settings-msg" class="settings-msg"></p>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
